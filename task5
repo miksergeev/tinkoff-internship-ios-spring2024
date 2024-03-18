@@ -1,0 +1,60 @@
+import Foundation
+
+var numberN : Int = 0
+var numberM : Int = 0
+var numberQ : Int = 0
+if let inputString = readLine() {
+    numberN = Int(inputString.components(separatedBy: " ")[0]) ?? 0
+    numberM = Int(inputString.components(separatedBy: " ")[1]) ?? 0
+    numberQ = Int(inputString.components(separatedBy: " ")[2]) ?? 0
+}
+
+var arrayForCountedManuls : [Int] = []
+if let inputString = readLine() {
+    arrayForCountedManuls = inputString.components(separatedBy: " ").map{Int($0) ?? 0}
+}
+
+var dictionaryForFriends: [Int:Set<Int>] = [:]
+for _ in (0..<numberM) {
+    if let inputString = readLine() {
+        let leftFriend = Int(inputString.components(separatedBy: " ")[0]) ?? 0
+        let rightFriend = Int(inputString.components(separatedBy: " ")[1]) ?? 0
+        if dictionaryForFriends[leftFriend] != nil {
+            dictionaryForFriends[leftFriend]!.insert(rightFriend)
+        } else {
+            dictionaryForFriends[leftFriend] = [rightFriend]
+        }
+        if dictionaryForFriends[rightFriend] != nil {
+            dictionaryForFriends[rightFriend]!.insert(leftFriend)
+        } else {
+            dictionaryForFriends[rightFriend] = [leftFriend]
+        }
+    }
+}
+
+var storageForStrings : [(String, [Int])] = []
+for _ in (0..<numberQ) {
+    if let inputString = readLine() {
+        let inputStringArray = inputString.components(separatedBy: " ")
+        let symbolToAdd : String = inputStringArray[0]
+        var arrayOfNumbersToAdd : [Int] = []
+        for i in (1..<inputStringArray.count) {
+            arrayOfNumbersToAdd.append(Int(inputStringArray[i]) ?? 0)
+        }
+        storageForStrings.append((symbolToAdd, arrayOfNumbersToAdd))
+    }
+}
+
+for element in storageForStrings {
+    switch element.0 {
+    case "?": 
+        print(arrayForCountedManuls[element.1[0] - 1])
+    case "+":
+        let arrayToSend = Array(dictionaryForFriends[element.1[0]]!)
+            for i in (0..<arrayToSend.count) {
+                arrayForCountedManuls[arrayToSend[i] - 1] += element.1[1]
+            }
+    default:
+        break
+    }
+}
