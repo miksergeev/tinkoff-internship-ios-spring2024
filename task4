@@ -1,0 +1,119 @@
+import Foundation
+
+var numberN : Int = 0
+var numberK : Int = 0
+if let inputString = readLine() {
+    numberN = Int(inputString.components(separatedBy: " ")[0]) ?? 0
+    numberK = Int(inputString.components(separatedBy: " ")[1]) ?? 0
+}
+
+var dictionaryForTree : [Int : (Int?, Int?, String?, Set<Int>)] = [:]
+var setForCompanies : Set<String> = []
+var setForLeaves : Set<Int> = Set<Int>(1...numberN)
+
+for _ in (1...numberK) {
+    if let inputString = readLine() {
+        setForCompanies.insert(inputString)
+    }
+}
+
+for i in (1...numberN) {
+    if let inputString = readLine() {
+        let inputStringArray = inputString.components(separatedBy: " ")
+        let numberOfParentNode : Int = Int(inputStringArray[0]) ?? 0
+        let priceForCompany : Int = Int(inputStringArray[1]) ?? 0
+        let nameForCompany : String = inputStringArray[2]
+        
+        var arrayForChilds : Set<Int> = []
+        if dictionaryForTree[i] != nil {
+            arrayForChilds = dictionaryForTree[i]!.3
+        }
+        
+        dictionaryForTree[i] = (numberOfParentNode, priceForCompany, nameForCompany, arrayForChilds)
+        if dictionaryForTree[numberOfParentNode] == nil {
+            dictionaryForTree[numberOfParentNode] = (nil, nil, nil, [i])
+        } else {
+            dictionaryForTree[numberOfParentNode]!.3.insert(i)
+        }
+        setForLeaves.remove(numberOfParentNode)
+    }
+}
+
+var summaryDictionaryForTree : [Int : (Set<String>, Int)] = [:]
+var arrayOfSetsOfLeaves : [Set<Int>] = []
+arrayOfSetsOfLeaves.append(setForLeaves)
+var setOfVisitedNodes : Set<Int> = []
+
+while true {
+    let currentArrayForLeaves = Array(arrayOfSetsOfLeaves[arrayOfSetsOfLeaves.count - 1])
+    setOfVisitedNodes = setOfVisitedNodes.union(Set(currentArrayForLeaves))
+    var nextLayerForNodes : Set<Int> = []
+    for element in currentArrayForLeaves {
+        if summaryDictionaryForTree[element] == nil {
+            var setToAppend : Set<String> = []
+            setToAppend.insert(dictionaryForTree[element]!.2!)
+            summaryDictionaryForTree[element] = (setToAppend, dictionaryForTree[element]!.1!)
+        } else {
+            summaryDictionaryForTree[element]!.0.insert(dictionaryForTree[element]!.2!)
+            summaryDictionaryForTree[element]!.1 += dictionaryForTree[element]!.1!
+        }
+        if dictionaryForTree[element]!.0! != 0 {
+            if (setOfVisitedNodes.contains(dictionaryForTree[element]!.0!) == false) {
+                var allChildrenWereCounted : Bool = true
+                let arrayOfChilds = Array(dictionaryForTree[dictionaryForTree[element]!.0!]!.3)
+                for child in arrayOfChilds {
+                    if (setOfVisitedNodes.contains(child) == false) {
+                        allChildrenWereCounted = false
+                    }
+                }
+                if allChildrenWereCounted == true {
+                    nextLayerForNodes.insert(dictionaryForTree[element]!.0!)
+                }
+            }
+            if summaryDictionaryForTree[dictionaryForTree[element]!.0!] == nil {
+                var setToAppend : Set<String> = []
+                setToAppend = summaryDictionaryForTree[element]!.0
+                summaryDictionaryForTree[dictionaryForTree[element]!.0!] = (setToAppend, summaryDictionaryForTree[element]!.1)
+            } else {
+                summaryDictionaryForTree[dictionaryForTree[element]!.0!]!.0 = summaryDictionaryForTree[dictionaryForTree[element]!.0!]!.0.union(summaryDictionaryForTree[element]!.0)
+                summaryDictionaryForTree[dictionaryForTree[element]!.0!]!.1 += summaryDictionaryForTree[element]!.1
+            }
+        }
+    }
+    if nextLayerForNodes.count == 0 {
+        break
+    }
+    arrayOfSetsOfLeaves.append(nextLayerForNodes)
+}
+
+var minimumOfMoney = Int.max
+var currentAmountForBuying = 0
+var itIsPossibleToBuyCompanies = false
+
+var arrayQueue : [Int] = []
+arrayQueue.append(dictionaryForTree[0]!.3.first!)
+if  setForCompanies.isSubset(of: summaryDictionaryForTree[arrayQueue[0]]!.0) {
+    itIsPossibleToBuyCompanies = true
+} else {
+    itIsPossibleToBuyCompanies = false
+}
+
+if (itIsPossibleToBuyCompanies) {
+    while (arrayQueue.count > 0) {
+        currentAmountForBuying = summaryDictionaryForTree[arrayQueue[0]]!.1
+        if currentAmountForBuying < minimumOfMoney {
+            minimumOfMoney = currentAmountForBuying
+        }
+        let arrayOfChildrenForNode = Array(dictionaryForTree[arrayQueue[0]]!.3)
+        for i in (0..<arrayOfChildrenForNode.count) {
+            if (setForCompanies.isSubset(of: summaryDictionaryForTree[arrayOfChildrenForNode[i]]!.0)) {
+                arrayQueue.append(arrayOfChildrenForNode[i])
+            }
+        }
+        arrayQueue.remove(at: 0)
+    }
+} else {
+    minimumOfMoney = -1
+}
+
+print(minimumOfMoney)
