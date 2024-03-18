@@ -1,0 +1,86 @@
+import Foundation
+
+struct MyNode {
+    var nodeNumber : Int
+    var nodeWeight : Int
+}
+
+var numberT : Int = 0
+if let inputString = readLine() {
+    numberT = Int(inputString) ?? 0
+}
+
+var storage : [(Int, [Int])] = []
+for _ in (0..<numberT) {
+    var numberN : Int = 0
+    var arrayOfSocialising : [Int] = []
+    
+    if let inputString = readLine() {
+        numberN = Int(inputString.components(separatedBy: " ")[0]) ?? 0
+    }
+    if let inputString = readLine() {
+        let inputStringArray = inputString.components(separatedBy: " ")
+        for i in (0..<inputStringArray.count) {
+            arrayOfSocialising.append(Int(inputStringArray[i]) ?? 0)
+        }
+    }
+    storage.append((numberN, arrayOfSocialising))
+}
+
+for element in storage {
+    var arrayForNodes : [MyNode] = []
+    for i in (0..<element.0) {
+        let currentNode : MyNode = MyNode(nodeNumber: i, nodeWeight: element.1[i])
+        arrayForNodes.append(currentNode)
+    }
+    var dictionaryForGraph : [Int:Set<Int>] = [:]
+    var flagToStop : Bool = false
+    while flagToStop == false {
+        arrayForNodes.sort(by: {$0.nodeWeight < $1.nodeWeight})
+        if (arrayForNodes[arrayForNodes.count - 1].nodeWeight >= arrayForNodes[0].nodeWeight) && (arrayForNodes[0].nodeWeight > 0) {
+            if dictionaryForGraph[arrayForNodes[0].nodeNumber] != nil {
+                dictionaryForGraph[arrayForNodes[0].nodeNumber]!.insert(arrayForNodes[arrayForNodes.count - 1].nodeNumber)
+            } else {
+                let setToAppend : Set<Int> = [arrayForNodes[arrayForNodes.count - 1].nodeNumber]
+                dictionaryForGraph[arrayForNodes[0].nodeNumber] = setToAppend
+            }
+            
+            if dictionaryForGraph[arrayForNodes[arrayForNodes.count - 1].nodeNumber] != nil {
+                dictionaryForGraph[arrayForNodes[arrayForNodes.count - 1].nodeNumber]!.insert(arrayForNodes[0].nodeNumber)
+            } else {
+                let setToAppend : Set<Int> = [arrayForNodes[0].nodeNumber]
+                dictionaryForGraph[arrayForNodes[arrayForNodes.count - 1].nodeNumber] = setToAppend
+            }
+            
+            arrayForNodes[0].nodeWeight -= 1
+            arrayForNodes[arrayForNodes.count - 1].nodeWeight -= 1
+            arrayForNodes.removeAll(where: {$0.nodeWeight == 0})
+        }
+        if arrayForNodes.count <= 1 {
+            flagToStop = true
+        }
+    }
+    var arrayOfVisitedNodes : [Bool] = Array(repeating: false, count: element.0)
+    var queueArray : [Int] = [0]
+    var counter : Int = 0
+    while queueArray.count > 0 {
+        if (arrayOfVisitedNodes[queueArray[0]] == false) {
+            arrayOfVisitedNodes[queueArray[0]] = true
+            let arrayToAppend = Array(dictionaryForGraph[queueArray[0]]!)
+            queueArray.append(contentsOf: arrayToAppend)
+            queueArray.remove(at: 0)
+            counter += 1
+            continue
+        } else {
+            if (arrayOfVisitedNodes[queueArray[0]] == true) {
+                queueArray.remove(at: 0)
+                continue
+            }
+        }
+    }
+    if counter == element.0 {
+        print("Yes")
+    } else {
+        print("No")
+    }
+}
