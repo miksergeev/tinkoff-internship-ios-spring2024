@@ -1,0 +1,53 @@
+import Foundation
+
+var numberN : Int = 0
+var numberQ : Int = 0
+if let inputString = readLine() {
+    numberN = Int(inputString.components(separatedBy: " ")[0]) ?? 0
+    numberQ = Int(inputString.components(separatedBy: " ")[1]) ?? 0
+}
+var arrayA : [Int] = []
+if let inputString = readLine() {
+    let inputStringArray = inputString.components(separatedBy: " ")
+    arrayA = inputStringArray.map{Int($0) ?? 0}
+}
+
+var storageForStrings : [(String, [Int])] = []
+for _ in (0..<numberQ) {
+    if let inputString = readLine() {
+        let inputStringArray = inputString.components(separatedBy: " ")
+        let symbolToAdd : String = inputStringArray[0]
+        var arrayOfNumbersToAdd : [Int] = []
+        for i in (1..<inputStringArray.count) {
+            arrayOfNumbersToAdd.append(Int(inputStringArray[i]) ?? 0)
+        }
+        storageForStrings.append((symbolToAdd, arrayOfNumbersToAdd))
+    }
+}
+
+for element in storageForStrings {
+    switch element.0 {
+    case "?":
+        let numberL = element.1[0]
+        let numberR = element.1[1]
+        let numberK = element.1[2]
+        let numberB = element.1[3]
+        var maxToOutput : Int = 0
+        for i in (numberL...numberR) {
+            var currentMin = min(arrayA[i - 1], numberK * i + numberB)
+            if (currentMin > maxToOutput) {
+                maxToOutput = currentMin
+            }
+        }
+        print(maxToOutput)
+    case "+":
+        let numberL = element.1[0]
+        let numberR = element.1[1]
+        let numberX = element.1[2]
+        for i in (numberL...numberR) {
+            arrayA[i - 1] += numberX
+        }
+    default:
+        break
+    }
+}
