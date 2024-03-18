@@ -1,0 +1,31 @@
+import Foundation
+
+var numberT : Int = 0
+if let inputString = readLine() {
+    numberT = Int(inputString) ?? 0
+}
+
+var arrayForLetters : [String] = []
+for _ in (0..<numberT) {
+    if let inputString = readLine() {
+        arrayForLetters.append(inputString)
+    }
+}
+
+let tinkoff = "TINKOFF"
+let tinkoffCount = tinkoff.count
+let tinkoffSortedArray = tinkoff.sorted(by: {$0 < $1})
+
+for element in arrayForLetters {
+    if (element.count != tinkoffCount) {
+        print("No")
+        continue
+    } else {
+        if element.sorted(by: {$0 < $1}) != tinkoffSortedArray {
+            print("No")
+            continue
+        } else {
+            print("Yes")
+        }
+    }
+}
