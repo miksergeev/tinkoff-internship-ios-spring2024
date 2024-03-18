@@ -1,0 +1,31 @@
+import Foundation
+
+var numberN : Int = 0
+var numberM : Int = 0
+
+if let inputString = readLine() {
+    numberN = Int(inputString.components(separatedBy: " ")[0]) ?? 0
+    numberM = Int(inputString.components(separatedBy: " ")[1]) ?? 0
+}
+
+var pricesOfPresents : [Int] = []
+if let inputString = readLine() {
+    let inputStringArray = inputString.components(separatedBy: " ")
+    pricesOfPresents = inputStringArray.map{Int($0) ?? 0}
+}
+
+var currentMin : Int = 1
+var currentMax : Int = numberM
+
+for present in pricesOfPresents {
+    if (present == 1) {
+        currentMin -= 1
+        currentMax -= 1
+    } else {
+        if (present <= currentMax) {
+            currentMax = max(present - 1, currentMax - present)
+        }
+    }
+}
+
+print(currentMax)
